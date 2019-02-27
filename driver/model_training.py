@@ -8,7 +8,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LinearRegression
 from sklearn.externals import joblib
-
+from sklearn.neural_network import MLPClassifier
 """
 This file will run through a number of scikit learn models on the the training data
 in training.csv.  This training data was collected through running:
@@ -87,42 +87,59 @@ def find_best_model(X, y):
             'model': create_logistic_regression_model(),
             'params_grid': dict(penalty=['l2'], C=[10, 1, 0.1, 0.01], solver=['newton-cg', 'sag', 'lbfgs'],
                       max_iter=[100, 200, 300]),
-            'name': 'LogisticRegression'
+            'name': 'LogisticRegression',
+            'skip': True
         },
         {
             'model': create_decision_tree(),
             'params_grid': dict(criterion=['gini', 'entropy'], max_depth=[2, 3, 4, 5], min_samples_split=[2, 3]),
-            'name': 'DecisionTree'
+            'name': 'DecisionTree',
+            'skip': True
         },
         {
             'model': create_svc(),
             'params_grid': dict(kernel=['linear', 'rbf', 'poly'], gamma=['auto', 'scale']),
-            'name': 'SVC'
+            'name': 'SVC',
+            'skip': True
         },
         {
             'model': create_mnb(),
             'params_grid': None,
-            'name': 'MultinomialNB'
+            'name': 'MultinomialNB',
+            'skip': True
         },
         {
             'model': create_knn(),
             'params_grid': dict(n_neighbors=list(range(1, 31)), weights=['uniform', 'distance']),
-            'name': 'KNN GridSearch'
+            'name': 'KNN GridSearch',
+            'skip': True
         },
         {
             'model': create_knn(),
             'params_grid': None,
-            'name': 'KNN Default'
+            'name': 'KNN Default',
+            'skip': True
         },
         {
             'model': create_linear(),
             'params_grid': None,
-            'name': 'Linear'
+            'name': 'Linear',
+            'skip': True
+        },
+        {
+            'model': MLPClassifier(),
+            'params_grid': dict(activation=['relu', 'logistic', ],
+                                solver=['sgd', 'adam'],
+                                alpha=[1, 0.1, 0.01],
+                                hidden_layer_sizes=[(X.shape[1],128,16), (X.shape[1],100) ]),
+            'name': 'MLP',
+            'skip': False
         }
 
     ]
     for model in models:
-        train_model(model['model'], X, y, name=model['name'], param_grid=model['params_grid'])
+        if not model['skip']:
+            train_model(model['model'], X, y, name=model['name'], param_grid=model['params_grid'])
 
 
 """
@@ -132,6 +149,18 @@ KNN Grid
 KNeighborsClassifier(algorithm='auto', leaf_size=30, metric='minkowski',
            metric_params=None, n_jobs=None, n_neighbors=23, p=2,
            weights='uniform')
+
+
+MLP
+0.7066666666666667
+{'activation': 'relu', 'alpha': 1, 'hidden_layer_sizes': (250, 100), 'solver': 'sgd'}
+MLPClassifier(activation='relu', alpha=1, batch_size='auto', beta_1=0.9,
+       beta_2=0.999, early_stopping=False, epsilon=1e-08,
+       hidden_layer_sizes=(250, 100), learning_rate='constant',
+       learning_rate_init=0.001, max_iter=200, momentum=0.9,
+       n_iter_no_change=10, nesterovs_momentum=True, power_t=0.5,
+       random_state=None, shuffle=True, solver='sgd', tol=0.0001,
+       validation_fraction=0.1, verbose=False, warm_start=False)
 """
 
 
@@ -147,7 +176,6 @@ def save_best_model(X, y):
 
 if __name__ == '__main__':
     X, y = get_data()
-
     find_best_model(X,y)
 
     # save_best_model(X, y)
