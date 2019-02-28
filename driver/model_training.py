@@ -112,7 +112,7 @@ def find_best_model(X, y):
             'model': create_knn(),
             'params_grid': dict(n_neighbors=list(range(1, 31)), weights=['uniform', 'distance']),
             'name': 'KNN GridSearch',
-            'skip': True
+            'skip': False
         },
         {
             'model': create_knn(),
@@ -128,10 +128,10 @@ def find_best_model(X, y):
         },
         {
             'model': MLPClassifier(),
-            'params_grid': dict(activation=['relu', 'logistic', ],
-                                solver=['sgd', 'adam'],
-                                alpha=[1, 0.1, 0.01],
-                                hidden_layer_sizes=[(X.shape[1],128,16), (X.shape[1],100) ]),
+            'params_grid': dict(activation=['relu' ],
+                                solver=['sgd'],
+                                alpha=[1], max_iter=[500],
+                                hidden_layer_sizes=[(X.shape[1],100) ]),
             'name': 'MLP',
             'skip': False
         }
